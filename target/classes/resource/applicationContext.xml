@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.springframework.org/schema/beans" xmlns:aop="http://www.springframework.org/schema/aop"
+        xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+        xmlns:cache="http://www.springframework.org/schema/cache" xmlns:p="http://www.springframework.org/schema/p"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+     http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+     http://www.springframework.org/schema/aop
+     http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+     http://www.springframework.org/schema/context
+     http://www.springframework.org/schema/context/spring-context-4.0.xsd
+     http://www.springframework.org/schema/tx
+     http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+     http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache-4.0.xsd">
+    <!-- 进行主数据库的事务配置，采用默认策略 -->
+    <bean id="transactionManager"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+    <tx:annotation-driven transaction-manager="transactionManager" />
+    <!-- 引入jdbc配置文件 -->
+<!--    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">-->
+<!--        <property name="locations">-->
+<!--            <list>-->
+<!--                <value>classpath:resources/jdbc.properties</value>-->
+<!--            </list>-->
+<!--        </property>-->
+<!--    </bean>-->
+    <!-- 配置数据源 使用dbcp连接池-->
+    <bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource"  destroy-method="close">
+        <property name="url">
+            <value>${jdbc.url}</value>
+        </property>
+        <property name="driverClassName" value="${jdbc.driverClass}"/>
+        <property name="username">
+            <value>${jdbc.username}</value>
+        </property>
+        <property name="password">
+            <value>${jdbc.password}</value>
+        </property>
+        <!--initialSize: 初始化连接-->
+        <property name="initialSize" value="25"/>
+        <property name="maxTotal" value="20"/>
+        <property name="maxIdle" value="5"/>
+    </bean>
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref ="dataSource"/>
+    </bean>
+
+    <bean id="studentDao" class="StudentDao.StudentDaoImpl">
+
+    </bean>
+
+    <bean id="studentService" class="StudentService.StudentServiceImpl">
+            <property name="studentDao" ref="studentDao"></property>
+    </bean>
+
+    <bean id="studentServlet" class="StudentServlet.QueryStudentByIdServlet">
+            <property name="StudentService" ref="studentService"></property>
+    </bean>
+
+    <!--Dao Config-->
+<!--    <bean id="demoDao" class="Dao.DemoDao">-->
+<!--        <property name="jdbcTemplate" ref ="jdbcTemplate"/>-->
+<!--    </bean>-->
+</beans>
